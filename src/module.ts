@@ -1,44 +1,44 @@
 import { PanelPlugin } from '@grafana/data';
-import { CustomTimeRangeOptions, CustomTimeRange } from './types';
-import { CustomTimeSelector } from './components/CustomTimeSelector';
-import { CustomTimeRangeEditor } from 'components/CustomTimeRangeEditor';
+import { PredefinedIntervalOptions, CustomInterval } from './types';
+import { PredefinedIntervalHandler } from './components/PredefinedIntervalHandler';
+import { PredefinedInervalButtonsEditor } from 'components/PredefinedIntervalButtonsEditor';
 
-const defaultTimeRanges: CustomTimeRange[] = [
+const defaultIntervals: CustomInterval[] = [
   {
     interval: 1,
-    timeRangeType: 'hour'
+    intervalUnit: 'hour'
   },
   {
     interval: 8,
-    timeRangeType: 'hour'
+    intervalUnit: 'hour'
   },
   {
     interval: 1,
-    timeRangeType: 'day'
+    intervalUnit: 'day'
   },
   {
     interval: 7,
-    timeRangeType: 'day'
+    intervalUnit: 'day'
   },
   {
     interval: 1,
-    timeRangeType: 'month'
+    intervalUnit: 'month'
   }
 ]    
 
-export const plugin = new PanelPlugin<CustomTimeRangeOptions>(CustomTimeSelector).setPanelOptions((builder) => {
+export const plugin = new PanelPlugin<PredefinedIntervalOptions>(PredefinedIntervalHandler).setPanelOptions((builder) => {  
   return builder    
     .addBooleanSwitch({
       path: 'showMultiplier',
       name: 'Show Multiplier',
-      description: 'The multiplier can be used to multiply the selected time range by the selected factor.',
+      description: 'The multiplier can be used to multiply the selected interval by the selected factor.',
       defaultValue: true
     })
     .addCustomEditor({
       id: 'ctr',
-      path: 'ranges',
-      name: 'Custom Time Ranges',
-      editor: CustomTimeRangeEditor,
-      defaultValue: defaultTimeRanges 
+      path: 'intervals',
+      name: 'Custom Intervals',
+      editor: PredefinedInervalButtonsEditor,
+      defaultValue: defaultIntervals 
     });
 });

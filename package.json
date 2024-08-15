@@ -1,5 +1,5 @@
 {
-  "name": "pre-defined-time-range",
+  "name": "predefined-interval-buttons",
   "version": "1.0.0",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
@@ -62,11 +62,12 @@
     "@emotion/css": "11.10.6",
     "@grafana/data": "^10.4.0",
     "@grafana/runtime": "^10.4.0",
-    "@grafana/ui": "^10.4.0",
     "@grafana/schema": "^10.4.0",
+    "@grafana/ui": "^10.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tslib": "2.5.3"
+    "tslib": "2.5.3",
+    "use-debounce": "^10.0.2"
   },
   "packageManager": "npm@10.5.0"
 }

@@ -50,7 +50,7 @@
         }
       ],
       "title": "Panel Title",
-      "type": "idx-predefinedtimerange-panel"
+      "type": "idx-predefinedintervalbuttons-panel"
     },
     {
       "datasource": {
@@ -81,7 +81,7 @@
         }
       ],
       "title": "Panel Title",
-      "type": "idx-predefinedtimerange-panel"
+      "type": "idx-predefinedintervalbuttons-panel"
     }
   ],
   "refresh": "",
@@ -96,7 +96,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Provisioned pre-defined-time-range dashboard",
+  "title": "Provisioned predefined-interval-buttons dashboard",
   "uid": "a538aeff-5a8a-42a5-901c-938d896fdd6f",
   "version": 1,
   "weekStart": ""

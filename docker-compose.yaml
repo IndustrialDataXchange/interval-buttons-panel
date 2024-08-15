@@ -1,7 +1,7 @@
 services:
   grafana:
     user: root
-    container_name: 'idx-predefinedtimerange-panel'
+    container_name: 'idx-predefinedintervalbuttons-panel'
 
     build:
       context: ./.config
@@ -12,13 +12,13 @@ services:
     ports:
       - 3000:3000/tcp
     volumes:
-      - ./dist:/var/lib/grafana/plugins/idx-predefinedtimerange-panel
+      - ./dist:/var/lib/grafana/plugins/idx-predefinedintervalbuttons-panel
       - ./provisioning:/etc/grafana/provisioning
-      - .:/root/idx-predefinedtimerange-panel
+      - .:/root/idx-predefinedintervalbuttons-panel
 
     environment:
       NODE_ENV: development
-      GF_LOG_FILTERS: plugin.idx-predefinedtimerange-panel:debug
+      GF_LOG_FILTERS: plugin.idx-predefinedintervalbuttons-panel:debug
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: idx-predefinedtimerange-panel
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: idx-predefinedintervalbuttons-panel

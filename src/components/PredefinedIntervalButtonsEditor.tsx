@@ -1,39 +1,39 @@
 import { SelectableValue, StandardEditorProps } from "@grafana/data"
 import { Button, Input, Select } from "@grafana/ui";
 import React, { useState, ChangeEvent } from "react"
-import { CustomTimeRange, TimeRangeType } from "types";
+import { CustomInterval, IntervalUnit } from "types";
 import './style.css';
 
-type Props = StandardEditorProps<CustomTimeRange[]>;
+type Props = StandardEditorProps<CustomInterval[]>;
 
-export const CustomTimeRangeEditor = ({value, onChange}: Props) => {
-    const timeRangeOptions: TimeRangeType[] = ['minute', 'hour', 'day', 'month'];
-    const [timeRange, setTimeRange] = useState<CustomTimeRange>({
+export const PredefinedInervalButtonsEditor = ({value, onChange, context}: Props) => {
+    const customIntervalOptions: IntervalUnit[] = ['minute', 'hour', 'day', 'month'];
+    const [customInterval, setCustomInterval] = useState<CustomInterval>({
         interval: 0,
-        timeRangeType: "day"
+        intervalUnit: "day"
     })    
 
     const handleIntervalChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setTimeRange({
-            ...timeRange,
+        setCustomInterval({
+            ...customInterval,
             interval: parseInt(event.target.value, 10)
         })
     }
 
-    const handleTimeRangeTypeChange = (value: SelectableValue<string>) => {
-        setTimeRange({
-            ...timeRange,
-            timeRangeType: value.value as TimeRangeType
+    const handleIntervalUnitChange = (value: SelectableValue<string>) => {
+        setCustomInterval({
+            ...customInterval,
+            intervalUnit: value.value as IntervalUnit
         })
     }
 
     const handleAdd = () => {
-        let newValues: CustomTimeRange[] = [];  
+        let newValues: CustomInterval[] = [];  
         let exists = false;              
 
         if(value){
             value.forEach(x => {
-                if(x.interval === timeRange.interval && x.timeRangeType === timeRange.timeRangeType){
+                if(x.interval === customInterval.interval && x.intervalUnit === customInterval.intervalUnit){
                     //this item already exists - no need to change anything
                     exists = true;
                 }
@@ -45,12 +45,12 @@ export const CustomTimeRangeEditor = ({value, onChange}: Props) => {
             return;
         }
 
-        newValues.push(timeRange)    
+        newValues.push(customInterval)    
         onChange(newValues)
     }    
 
     const handleDelete = (index: number) => {
-        let newValues: CustomTimeRange[] = []
+        let newValues: CustomInterval[] = []
                          
         value?.map((x,i) => {
             if(index !== i){
@@ -63,7 +63,7 @@ export const CustomTimeRangeEditor = ({value, onChange}: Props) => {
 
     const options = (): Array<SelectableValue<string>> => {
         let opts: Array<SelectableValue<string>> = []
-        timeRangeOptions.map(x => {
+        customIntervalOptions.map(x => {
             opts.push({
                 label: x,
                 value: x
@@ -72,27 +72,27 @@ export const CustomTimeRangeEditor = ({value, onChange}: Props) => {
         return opts;
     }    
 
-    const opts = options();
+    const opts = options();        
 
     return (<div>                                    
-            <div className="row pt-10 pb-10">
-            <div className="col-6 pr-10">
-                <Input width={20} label="Interval" placeholder="Interval" onChange={handleIntervalChange} type="number"></Input>
-            </div>           
-            <div className="col-6 pr-10">
-                <Select width={20} options={opts} placeholder="Interval Type" defaultValue={'hours'} onChange={handleTimeRangeTypeChange}/>
-            </div>
-            </div>
-            <div className="row pb-10">
-                <Button onClick={handleAdd}>Add</Button>
-            </div>
+                <div className="row pt-10 pb-10">
+                    <div className="col-6 pr-10">
+                        <Input width={20} label="Interval" placeholder="Interval" onChange={handleIntervalChange} type="number"></Input>
+                    </div>           
+                    <div className="col-6 pr-10">
+                        <Select width={20} options={opts} placeholder="Interval Type" defaultValue={'hours'} onChange={handleIntervalUnitChange}/>
+                    </div>
+                </div>
+                <div className="row pb-10">
+                    <Button onClick={handleAdd}>Add</Button>
+                </div>
             {value?.map((x, index) => {
                 return <div key={index} className="row pb-10"> 
                         <div className="col-4 pr-10">
                             <Input disabled width={20} label="Interval" placeholder="Interval" type="number" value={x.interval}></Input>
                         </div>           
                         <div className="col-4 pr-10">
-                            <Select value={x.timeRangeType} disabled width={20} options={opts} placeholder="Interval Type" defaultValue={'hours'} onChange={handleTimeRangeTypeChange}/>
+                            <Select value={x.intervalUnit} disabled width={20} options={opts} placeholder="Interval Type" defaultValue={'hours'} onChange={handleIntervalUnitChange}/>
                         </div>
                         <div className="col-4 pr-10">
                             <Button data-testid={"remove-time-range-" + index} onClick={() => handleDelete(index)} className="deleteButton">X</Button>

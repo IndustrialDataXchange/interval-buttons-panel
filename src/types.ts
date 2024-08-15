@@ -1,17 +1,17 @@
-export type TimeRangeType = 'minute' | 'hour' | 'day' | 'month';
+export type IntervalUnit = 'minute' | 'hour' | 'day' | 'month';
 
-export interface CustomTimeRange {
+export interface CustomInterval {
   interval: number;
-  timeRangeType: TimeRangeType;
+  intervalUnit: IntervalUnit;
 }
 
-export interface CustomTimeRangeOptions {
-  ranges: CustomTimeRange[],
+export interface PredefinedIntervalOptions {
+  intervals?: CustomInterval[],
   showMultiplier: boolean
 }
 
 export interface StateData {
-  selectedTimeRange: CustomTimeRange,
+  selectedTimeRange: CustomInterval,
   selectedButtonIndex: number,
   multiplier: number
 }

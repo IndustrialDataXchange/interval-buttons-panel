@@ -1,8 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
-  "name": "Pre-Defined-Time-Range",
-  "id": "idx-predefinedtimerange-panel",
+  "name": "predefined-interval-buttons",
+  "id": "idx-predefinedintervalbuttons-panel",
+
+  "skipDataQuery": true,
+  
   "info": {
     "keywords": ["panel"],
     "description": "",

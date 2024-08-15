@@ -190,7 +190,7 @@ jobs:
       - name: Docker logs
         if: ${{ always() && steps.run-tests.outcome == 'failure' }}
         run: |
-          docker logs idx-predefinedtimerange-panel >& grafana-server.log
+          docker logs idx-predefined-interval-buttons >& grafana-server.log
 
       - name: Stop grafana docker
         run: docker-compose down
