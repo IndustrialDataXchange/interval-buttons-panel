@@ -102,7 +102,7 @@ export const CustomTimeSelector: React.FC<Props> = ({ options, data, width, heig
     <div style={{width:width, height: height}}>
       { (options.ranges && options.ranges.length > 0) ?      
       <>
-        <div className='row center pb-20' id='time-ranges'>
+        <div className='row center pb-20' data-testid="time-ranges">
           <div className='col-6 pr-20'>
             <DateTimePicker label="From: " date={data.timeRange.from} onChange={(v) => setTime(v, true)}></DateTimePicker>
           </div>
@@ -153,7 +153,7 @@ export const CustomTimeSelector: React.FC<Props> = ({ options, data, width, heig
          }
         </> 
         : 
-        <div className='row center' id="no-data">Please add ranges in the panel options</div>
+        <div className='row center' data-testid="no-data">Please add ranges in the panel options</div>
       }
     </div>
   );

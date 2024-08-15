@@ -95,7 +95,7 @@ export const CustomTimeRangeEditor = ({value, onChange}: Props) => {
                             <Select value={x.timeRangeType} disabled width={20} options={opts} placeholder="Interval Type" defaultValue={'hours'} onChange={handleTimeRangeTypeChange}/>
                         </div>
                         <div className="col-4 pr-10">
-                            <Button onClick={() => handleDelete(index)} className="deleteButton">X</Button>
+                            <Button data-testid={"remove-time-range-" + index} onClick={() => handleDelete(index)} className="deleteButton">X</Button>
                         </div>
                     </div>
                 })
