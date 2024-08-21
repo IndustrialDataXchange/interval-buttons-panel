@@ -1,7 +1,7 @@
 services:
   grafana:
     user: root
-    container_name: 'idx-intervalbuttons-panel'
+    container_name: 'idxadmin-intervalbuttons-panel'
 
     build:
       context: ./.config
@@ -12,13 +12,13 @@ services:
     ports:
       - 3000:3000/tcp
     volumes:
-      - ./dist:/var/lib/grafana/plugins/idx-intervalbuttons-panel
+      - ./dist:/var/lib/grafana/plugins/idxadmin-intervalbuttons-panel
       - ./provisioning:/etc/grafana/provisioning
-      - .:/root/idx-intervalbuttons-panel
+      - .:/root/idxadmin-intervalbuttons-panel
 
     environment:
       NODE_ENV: development
-      GF_LOG_FILTERS: plugin.idx-intervalbuttons-panel:debug
+      GF_LOG_FILTERS: plugin.idxadmin-intervalbuttons-panel:debug
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: idx-intervalbuttons-panel
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: idxadmin-intervalbuttons-panel

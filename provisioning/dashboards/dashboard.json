@@ -50,7 +50,7 @@
         }
       ],
       "title": "Panel Title",
-      "type": "idx-intervalbuttons-panel"
+      "type": "idxadmin-intervalbuttons-panel"
     },
     {
       "datasource": {
@@ -81,7 +81,7 @@
         }
       ],
       "title": "Panel Title",
-      "type": "idx-intervalbuttons-panel"
+      "type": "idxadmin-intervalbuttons-panel"
     }
   ],
   "refresh": "",
