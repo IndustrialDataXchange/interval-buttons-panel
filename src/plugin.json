@@ -2,22 +2,29 @@
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
   "name": "Interval Buttons",
-  "id": "idx-intervalbuttons-panel",
-
-  "skipDataQuery": true,
-  
+  "id": "idx-intervalbuttons-panel",  
+  "skipDataQuery": true,  
   "info": {
     "keywords": ["panel"],
-    "description": "",
+    "description": "A panel plugin that allows for interval buttons to be displayed on the dashboard.",
     "author": {
-      "name": "Idx"
+      "name": "IDX"
     },
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
     "links": [],
-    "screenshots": [],
+    "screenshots": [
+      {
+        "name": "Dashboard",
+        "path": "img/IntervalSCreenshot.png"
+      },
+      {
+        "name": "Examples",
+        "path": "img/IntervalOptionsScreenshot.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
