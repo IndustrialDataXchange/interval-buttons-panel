@@ -1,7 +1,7 @@
 import { PanelPlugin } from '@grafana/data';
 import { PredefinedIntervalOptions, CustomInterval } from './types';
-import { PredefinedIntervalHandler } from './components/PredefinedIntervalHandler';
-import { PredefinedInervalButtonsEditor } from 'components/PredefinedIntervalButtonsEditor';
+import { IntervalHandler } from './components/IntervalHandler';
+import { IntervalButtonsEditor } from 'components/IntervalButtonsEditor';
 
 const defaultIntervals: CustomInterval[] = [
   {
@@ -26,7 +26,7 @@ const defaultIntervals: CustomInterval[] = [
   }
 ]    
 
-export const plugin = new PanelPlugin<PredefinedIntervalOptions>(PredefinedIntervalHandler).setPanelOptions((builder) => {  
+export const plugin = new PanelPlugin<PredefinedIntervalOptions>(IntervalHandler).setPanelOptions((builder) => {  
   return builder    
     .addBooleanSwitch({
       path: 'showMultiplier',
@@ -38,7 +38,7 @@ export const plugin = new PanelPlugin<PredefinedIntervalOptions>(PredefinedInter
       id: 'ctr',
       path: 'intervals',
       name: 'Custom Intervals',
-      editor: PredefinedInervalButtonsEditor,
+      editor: IntervalButtonsEditor,
       defaultValue: defaultIntervals 
     });
 });

@@ -6,7 +6,7 @@ import './style.css';
 
 type Props = StandardEditorProps<CustomInterval[]>;
 
-export const PredefinedInervalButtonsEditor = ({value, onChange, context}: Props) => {
+export const IntervalButtonsEditor = ({value, onChange, context}: Props) => {
     const customIntervalOptions: IntervalUnit[] = ['minute', 'hour', 'day', 'month'];
     const [customInterval, setCustomInterval] = useState<CustomInterval>({
         interval: 0,

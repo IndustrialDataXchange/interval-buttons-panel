@@ -6,7 +6,7 @@ import './style.css';
 
 interface Props extends PanelProps<PredefinedIntervalOptions> {}
 
-export const PredefinedIntervalHandler: React.FC<Props> = (props) => {   
+export const IntervalHandler: React.FC<Props> = (props) => {   
   const { options, data, width, height, onChangeTimeRange } = props
   const [stateData, setStateData] = useState<StateData>({
     selectedTimeRange: {
