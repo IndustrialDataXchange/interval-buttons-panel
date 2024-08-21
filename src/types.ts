@@ -5,7 +5,7 @@ export interface CustomInterval {
   intervalUnit: IntervalUnit;
 }
 
-export interface PredefinedIntervalOptions {
+export interface IntervalOptions {
   intervals?: CustomInterval[],
   showMultiplier: boolean
 }

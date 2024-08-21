@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import { AbsoluteTimeRange, DateTime, DurationUnit, PanelProps, dateTime } from '@grafana/data';
-import { PredefinedIntervalOptions, IntervalUnit, StateData} from 'types';
+import { IntervalOptions, IntervalUnit, StateData} from 'types';
 import { Button, DateTimePicker } from '@grafana/ui';
 import './style.css';
 
-interface Props extends PanelProps<PredefinedIntervalOptions> {}
+interface Props extends PanelProps<IntervalOptions> {}
 
 export const IntervalHandler: React.FC<Props> = (props) => {   
   const { options, data, width, height, onChangeTimeRange } = props

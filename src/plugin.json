@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
   "name": "interval-buttons",
-  "id": "idx-predefinedintervalbuttons-panel",
+  "id": "idx-intervalbuttons-panel",
 
   "skipDataQuery": true,
   
