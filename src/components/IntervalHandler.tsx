@@ -3,7 +3,6 @@ import { AbsoluteTimeRange, DateTime, DurationUnit, PanelProps, dateTime } from 
 import { IntervalOptions, IntervalUnit, StateData} from 'types';
 import { Button, DateTimePicker } from '@grafana/ui';
 import { CiTimer } from "react-icons/ci";
-import { LuRefreshCcw } from "react-icons/lu";
 import './style.css';
 
 interface Props extends PanelProps<IntervalOptions> {}
