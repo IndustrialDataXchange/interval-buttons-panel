@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import { AbsoluteTimeRange, DateTime, DurationUnit, PanelProps, dateTime } from '@grafana/data';
 import { IntervalOptions, IntervalUnit, StateData} from 'types';
 import { Button, DateTimePicker } from '@grafana/ui';
+import { CiTimer } from "react-icons/ci";
+import { LuRefreshCcw } from "react-icons/lu";
 import './style.css';
 
 interface Props extends PanelProps<IntervalOptions> {}
@@ -23,8 +25,8 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {            
     let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);
 
-    let from = dateTime(data.timeRange.from)     
-    let to = dateTime(data.timeRange.from).add(multipliedInterval, 'hours');        
+    let to = dateTime(data.timeRange.to)     
+    let from = dateTime(data.timeRange.to).subtract(multipliedInterval, 'hours');        
     
     changeDate(from, to);
 
@@ -86,9 +88,9 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   }
 
   const setMultiplier = (value: number) => {
-    let from = dateTime(data.timeRange.from)  
-    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, value, data.timeRange.from);          
-    let to = dateTime(from).add(multipliedInterval, 'hours');
+    let to = dateTime(data.timeRange.to)  
+    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, value, data.timeRange.to);          
+    let from = dateTime(to).subtract(multipliedInterval, 'hours');
 
     changeDate(from, to)
 
@@ -127,17 +129,25 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     return multipliedInterval;
   }
 
+  const goToNow = () => {
+    let date = dateTime(Date.now());
+    setTime(date, false)
+  }
+
   return (    
     <div style={{width:width, height: height}}>
       { (options.intervals && options.intervals.length > 0) ?      
       <>
         <div className='row center pb-20' data-testid="time-ranges">
-          <div className='col-6 pr-20'>
+          <div className='col-3 pr-20'>
             <DateTimePicker label="From: " date={data.timeRange.from} onChange={(v) => setTime(v, true)}></DateTimePicker>
           </div>
-          <div className='col-6'>
+          <div className='col-3 pr-20'>
             <DateTimePicker label="To: " date={data.timeRange.to} onChange={(v) => setTime(v, false)}></DateTimePicker>          
           </div>
+          <div className='col-3' title='Set "To" To now'>
+            <Button onClick={() => goToNow()}><CiTimer /></Button>
+          </div>          
         </div>
         <div className='row center'>
           <div className='col-4 padding'>
