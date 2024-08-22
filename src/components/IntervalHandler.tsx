@@ -21,8 +21,10 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   const { interval, intervalUnit } = selectedTimeRange;  
 
   const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {            
-    let from = dateTime(data.timeRange.from)            
-    let to = dateTime(from).add(interval * multiplier, durationUnit);        
+    let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);
+
+    let from = dateTime(data.timeRange.from)     
+    let to = dateTime(data.timeRange.from).add(multipliedInterval, 'hours');        
     
     changeDate(from, to);
 
@@ -36,10 +38,22 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     })
   }  
 
-  const setTime = (value: DateTime, from: boolean) => {
+  const setTime = (value: DateTime, isFrom: boolean) => {
+    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, multiplier, value);
+    let to: DateTime = value;
+    let from: DateTime = value;
+
+    if(isFrom){
+      to = dateTime(value).add(multipliedInterval, 'hours');
+    }
+    else{
+      from = dateTime(from).subtract(multipliedInterval, 'hours');
+    }    
+    
+
     let tra: AbsoluteTimeRange = {
-      from: value.valueOf(),
-      to: value.valueOf(),
+      from: from.valueOf(),      
+      to: to.valueOf()
     }
     
     onChangeTimeRange(tra);   
@@ -50,20 +64,18 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       return;
     }    
 
-    let multipliedInterval = interval * multiplier;
-
-    let durationUnit = ((multipliedInterval > 1) ? intervalUnit + "s" : intervalUnit) as DurationUnit 
-
+    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, multiplier, data.timeRange.from);
+   
     let from = dateTime(data.timeRange.from);    
-    let to = dateTime(data.timeRange.from).add(multipliedInterval, durationUnit);
+    let to = dateTime(data.timeRange.from).add(multipliedInterval, 'hours');
 
     if(increment) {
-      from = from.add(multipliedInterval, durationUnit);
-      to = to.add(multipliedInterval, durationUnit);
+      from = from.add(multipliedInterval, 'hours');
+      to = to.add(multipliedInterval, 'hours');
     }
     else {
-      from = from.add(-multipliedInterval, durationUnit);
-      to = to.add(-multipliedInterval, durationUnit);
+      from = from.add(-multipliedInterval, 'hours');
+      to = to.add(-multipliedInterval, 'hours');
     }
 
     changeDate(from, to);
@@ -74,8 +86,9 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   }
 
   const setMultiplier = (value: number) => {
-    let from = dateTime(data.timeRange.from)            
-    let to = dateTime(from).add(interval * value, intervalUnit);
+    let from = dateTime(data.timeRange.from)  
+    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, value, data.timeRange.from);          
+    let to = dateTime(from).add(multipliedInterval, 'hours');
 
     changeDate(from, to)
 
@@ -93,6 +106,26 @@ export const IntervalHandler: React.FC<Props> = (props) => {
 
     onChangeTimeRange(tra)
   }  
+
+  const getMultipliedInterval = (interval: number, unit: string, mult: number, from: DateTime) => {
+    let multipliedInterval = interval * mult;
+   
+    let durationUnit = ((multipliedInterval > 1) ? unit + "s" : unit) as DurationUnit 
+
+    if(durationUnit === 'days' || durationUnit === 'day'){
+      multipliedInterval = multipliedInterval * 24;      
+    }
+
+    if(durationUnit === 'month' || durationUnit === 'months'){
+      multipliedInterval = multipliedInterval * 24;
+      let currentFrom = from.toDate();
+      let numDaysInMonth = new Date(currentFrom.getFullYear(), currentFrom.getMonth() + 1, 0).getDate()
+      multipliedInterval = multipliedInterval * numDaysInMonth;      
+
+    }
+
+    return multipliedInterval;
+  }
 
   return (    
     <div style={{width:width, height: height}}>
