@@ -40,5 +40,18 @@ export const plugin = new PanelPlugin<IntervalOptions>(IntervalHandler).setPanel
       name: 'Custom Intervals',
       editor: IntervalButtonsEditor,
       defaultValue: defaultIntervals 
+    })
+    .addBooleanSwitch({
+      path: 'enableAutoRefresh',
+      name: 'Enable auto refresh',
+      description: 'Will continuously update the "To" time by the auto refresh value.',
+      defaultValue: false
+    })
+    .addNumberInput({
+      path: 'autoRefreshTime',
+      name: 'Auto Refresh Value',
+      description: 'The time in seconds before the "To" value should be updated.',
+      showIf: (config: IntervalOptions) => config.enableAutoRefresh,
+      defaultValue: 60
     });
 });

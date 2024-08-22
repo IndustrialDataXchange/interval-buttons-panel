@@ -7,11 +7,14 @@ export interface CustomInterval {
 
 export interface IntervalOptions {
   intervals?: CustomInterval[],
-  showMultiplier: boolean
+  showMultiplier: boolean,
+  enableAutoRefresh: boolean,
+  autoRefreshTime: number
 }
 
 export interface StateData {
   selectedTimeRange: CustomInterval,
   selectedButtonIndex: number,
-  multiplier: number
+  multiplier: number,
+  autoRefreshActive: boolean
 }
