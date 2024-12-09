@@ -17,15 +17,28 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     },
     selectedButtonIndex: 0,
     multiplier: 1,
-    autoRefreshActive: false,
+    autoRefreshActive: true,
     autoRefreshInterval: undefined
   })
 
   const { selectedTimeRange, selectedButtonIndex, multiplier, autoRefreshActive } = stateData;
   const { interval, intervalUnit } = selectedTimeRange;  
 
-  useEffect(() => {
-    setTimeInterval(stateData.selectedTimeRange.interval, stateData.selectedTimeRange.intervalUnit, stateData.selectedButtonIndex)
+  useEffect(() => {    
+    setTimeInterval(stateData.selectedTimeRange.interval, stateData.selectedTimeRange.intervalUnit, stateData.selectedButtonIndex);    
+
+    const interval = setInterval(() => {
+      doAutoRefresh()
+    }, options.autoRefreshTime * 1000)
+
+    setStateData(prev => ({
+      ...prev,
+      autoRefreshInterval: interval
+    }))
+
+    return () => {
+      clearInterval(stateData.autoRefreshInterval);
+    }
   }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
   const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {            
@@ -163,8 +176,6 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   const goToNow = () => {
     let date = dateTime(Date.now());
     setTime(date, false)
-
-    
   }
 
   const toggleAutoRefresh = () => {
