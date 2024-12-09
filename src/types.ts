@@ -16,5 +16,6 @@ export interface StateData {
   selectedTimeRange: CustomInterval,
   selectedButtonIndex: number,
   multiplier: number,
-  autoRefreshActive: boolean
+  autoRefreshActive: boolean,
+  autoRefreshInterval: NodeJS.Timeout | undefined
 }

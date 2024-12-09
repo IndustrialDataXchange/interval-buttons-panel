@@ -12,28 +12,21 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   const { options, data, width, height, onChangeTimeRange } = props
   const [stateData, setStateData] = useState<StateData>({
     selectedTimeRange: {
-      interval: 0,
+      interval: 1,
       intervalUnit: 'hour'
     },
-    selectedButtonIndex: -1,
+    selectedButtonIndex: 0,
     multiplier: 1,
-    autoRefreshActive: false
+    autoRefreshActive: false,
+    autoRefreshInterval: undefined
   })
 
   const { selectedTimeRange, selectedButtonIndex, multiplier, autoRefreshActive } = stateData;
   const { interval, intervalUnit } = selectedTimeRange;  
 
   useEffect(() => {
-    if(autoRefreshActive){
-      let interval = setInterval(() => {
-        doAutoRefresh()
-      }, options.autoRefreshTime * 1000)
-
-      return () => clearInterval(interval)
-    }
-
-    return;
-  })
+    setTimeInterval(stateData.selectedTimeRange.interval, stateData.selectedTimeRange.intervalUnit, stateData.selectedButtonIndex)
+  }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
   const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {            
     let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);
@@ -93,6 +86,8 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     }
 
     changeDate(from, to);
+
+    disableAutoRefresh();
   }
 
   const capitalizeFirstLetter = (input: string) => {
@@ -140,9 +135,36 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     return multipliedInterval;
   }
 
+  const handleNowClick = () => {
+    if(!autoRefreshActive){
+      goToNow();
+    }
+
+    let autoRefresh = !autoRefreshActive;    
+
+    let interval = undefined;
+
+    if(autoRefresh){
+      interval = setInterval(() => {
+        doAutoRefresh()
+      }, options.autoRefreshTime * 1000)      
+    }
+    else{
+      clearInterval(stateData.autoRefreshInterval);
+    }
+
+    setStateData({
+      ...stateData,
+      autoRefreshActive: autoRefresh,
+      autoRefreshInterval: interval
+    })
+  }
+
   const goToNow = () => {
     let date = dateTime(Date.now());
     setTime(date, false)
+
+    
   }
 
   const toggleAutoRefresh = () => {
@@ -154,11 +176,24 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     })    
   }
 
-  const doAutoRefresh = () => {
-    if(options.enableAutoRefresh && autoRefreshActive){
+  const doAutoRefresh = () => {    
       goToNow();     
-    }
   }  
+
+  const handleApplyTimeClick = (value: DateTime, isFrom: boolean) => {
+    setTime(value, isFrom);
+    disableAutoRefresh();
+  }
+
+  const disableAutoRefresh = () => {
+    clearInterval(stateData.autoRefreshInterval);
+
+    setStateData({
+      ...stateData,
+      autoRefreshActive: false,
+      autoRefreshInterval: undefined
+    })
+  }
 
   return (    
     <div style={{width:width, height: height}}>
@@ -166,13 +201,13 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       <>
         <div className='row center pb-20' data-testid="time-ranges">
           <div className='col-3 pr-20'>
-            <DateTimePicker label="From: " date={data.timeRange.from} onChange={(v) => setTime(v, true)}></DateTimePicker>
+            <DateTimePicker label="From: " date={data.timeRange.from} onChange={(v) => handleApplyTimeClick(v, true)}></DateTimePicker>
           </div>
           <div className='col-3 pr-20'>
-            <DateTimePicker label="To: " date={data.timeRange.to} onChange={(v) => setTime(v, false)}></DateTimePicker>          
+            <DateTimePicker label="To: " date={data.timeRange.to} onChange={(v) => handleApplyTimeClick(v, false)}></DateTimePicker>          
           </div>
           <div className='col-3 pr-20' title='Set "To" To now'>
-            <Button onClick={() => goToNow()}><FaClockRotateLeft size={20} /></Button>
+            <Button className={autoRefreshActive ? 'selectedButton' : ''} onClick={() => handleNowClick()}><FaClockRotateLeft size={20} /></Button>
           </div>          
           { options.enableAutoRefresh &&
             <div className='col-3' title='Enable auto refresh'>
