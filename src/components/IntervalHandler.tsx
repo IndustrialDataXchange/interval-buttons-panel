@@ -20,28 +20,38 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     autoRefreshActive: true,
     autoRefreshInterval: undefined
   })
+  const [refreshIntervals, setRefreshIntervals] = useState<NodeJS.Timeout[]>([]);
 
-  const { selectedTimeRange, selectedButtonIndex, multiplier, autoRefreshActive } = stateData;
+  const { selectedTimeRange, selectedButtonIndex, multiplier, autoRefreshActive, autoRefreshInterval } = stateData;
   const { interval, intervalUnit } = selectedTimeRange;  
 
-  useEffect(() => {    
+  useEffect(() => {           
     setTimeInterval(stateData.selectedTimeRange.interval, stateData.selectedTimeRange.intervalUnit, stateData.selectedButtonIndex);    
 
-    const interval = setInterval(() => {
-      doAutoRefresh()
-    }, options.autoRefreshTime * 1000)
+    //This is a hack to clear all intervals when the component is mounted, we need to find a better way to store the interval ids and clear them properly
+    for (let i = 1; i < 1000; i++) {
+      window.clearInterval(i);
+    }
+      
 
-    setStateData(prev => ({
-      ...prev,
-      autoRefreshInterval: interval
-    }))
+    if(autoRefreshActive){
+      const interval = setInterval(() => {
+        doAutoRefresh()
+      }, options.autoRefreshTime * 1000)      
+
+      setRefreshIntervals([...refreshIntervals, interval]);
+      setStateData(prev => ({
+        ...prev,
+        autoRefreshInterval: interval
+      }))      
+    }
 
     return () => {
-      clearInterval(stateData.autoRefreshInterval);
+      clearInterval(autoRefreshInterval);
     }
-  }, []);// eslint-disable-line react-hooks/exhaustive-deps
+  }, [interval, multiplier]);// eslint-disable-line react-hooks/exhaustive-deps
 
-  const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {            
+  const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {                
     let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);
 
     let to = dateTime(data.timeRange.to)     
@@ -60,6 +70,7 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   }  
 
   const setTime = (value: DateTime, isFrom: boolean) => {
+    
     let multipliedInterval = getMultipliedInterval(interval, intervalUnit, multiplier, value);
     let to: DateTime = value;
     let from: DateTime = value;
@@ -214,59 +225,56 @@ export const IntervalHandler: React.FC<Props> = (props) => {
           <div className='col-3 pr-20'>
             <DateTimePicker label="From: " date={data.timeRange.from} onChange={(v) => handleApplyTimeClick(v, true)}></DateTimePicker>
           </div>
-          <div className='col-3 pr-20'>
-            <DateTimePicker label="To: " date={data.timeRange.to} onChange={(v) => handleApplyTimeClick(v, false)}></DateTimePicker>          
-          </div>
-          <div className='col-3 pr-20' title='Set "To" To now'>
-            <Button className={autoRefreshActive ? 'selectedButton' : ''} onClick={() => handleNowClick()}><FaClockRotateLeft size={20} /></Button>
-          </div>          
-          { options.enableAutoRefresh &&
-            <div className='col-3' title='Enable auto refresh'>
-              <Button className={autoRefreshActive ? 'selectedButton' : ''} onClick={() => toggleAutoRefresh()}><LuRefreshCcw size={20}/></Button>
-            </div>          
-          }          
-        </div>
-        <div className='row center'>
-          <div className='col-4 padding'>
-            <Button onClick={() => incrementDecrementIntervalRangeByInterval(false)}> {"<"} </Button>           
-          </div>
-          { options.intervals.map((interval, index) => {
-            return <div key={index}>
-                    <div className='col-4 padding pb-10'>
-                      <Button className={(index === selectedButtonIndex) ? 'selectedButton' : ''} onClick={() => setTimeInterval(interval.interval, interval.intervalUnit, index)}>{interval.interval} {capitalizeFirstLetter(interval.intervalUnit)}{(interval.interval > 1) ? "s" : null}</Button>           
-                    </div>            
-                </div>
-            })          
-          }        
-          <div className='col-4 padding'>
-            <Button onClick={() => incrementDecrementIntervalRangeByInterval(true)}>{">"}</Button>           
-          </div>
-        </div>
-       
-        { options.showMultiplier &&
-          <>
-            <div className='row center pb-10'>
-              <div className='multiplierText'>Multiplier</div>
-            </div>
-            <div className='row center' id='multiplier'>                                              
-              <div className='col-4 padding'>
-                <Button className={(multiplier === 0.5) ? 'multiplierButtonSelected' : 'multiplierButton'} onClick={() => setMultiplier(0.5)}>
+          
+          {options.showMultiplier &&
+            <div className='col-6 pr-20' style={{display: 'flex', flexDirection: 'row', gap: 10}}>
+              <div className='pt-4'>
+                <Button style={{height: '25px'}} className={(multiplier === 0.5) ? 'multiplierButtonSelected' : 'multiplierButton'} onClick={() => setMultiplier(0.5)}>
                   1/2
                 </Button>
               </div>
-              <div className='col-4 padding'>
-                <Button className={(multiplier === 1) ? 'multiplierButtonSelected' : 'multiplierButton'} onClick={() => setMultiplier(1)}>
+              <div className='pt-4'>
+                <Button style={{height: '25px'}} className={(multiplier === 1) ? 'multiplierButtonSelected' : 'multiplierButton'} onClick={() => setMultiplier(1)}>
                   1
                 </Button>
               </div>
-              <div className='col-4 padding'>
-                <Button className={(multiplier === 2) ? 'multiplierButtonSelected' : 'multiplierButton'} onClick={() => setMultiplier(2)}>
+              <div className='pt-4'>
+                <Button style={{height: '25px'}} className={(multiplier === 2) ? 'multiplierButtonSelected' : 'multiplierButton'} onClick={() => setMultiplier(2)}>
                   2
                 </Button>
               </div>            
             </div>
-          </>
-         }
+          }
+           
+          <div className='col-3 pl-20 pr-20'>
+            <DateTimePicker label="To: " date={data.timeRange.to} onChange={(v) => handleApplyTimeClick(v, false)}></DateTimePicker>          
+          </div>
+          <div className='col-3 pt-4' title='Set "To" To now'>
+              <Button style={{height: '25px'}} className={autoRefreshActive ? 'selectedButton' : ''} onClick={() => handleNowClick()}><FaClockRotateLeft size={20} /></Button>
+          </div>          
+          { options.enableAutoRefresh &&
+            <div className='col-3 pt-4' title='Enable auto refresh'>
+              <Button className={autoRefreshActive ? 'selectedButton' : ''} onClick={() => toggleAutoRefresh()}><LuRefreshCcw size={20}/></Button>
+            </div>          
+          }          
+        </div>
+        <div style={{display: 'flex', flexDirection: 'row', gap: 10}} className='center'>
+          <div>
+            <Button style={{height: '25px'}} onClick={() => incrementDecrementIntervalRangeByInterval(false)}> {"<"} </Button>           
+          </div>
+          { options.intervals.map((interval, index) => {
+            return <div key={index}>
+                    <div className='col-2 pb-10'>
+                      <Button style={{height: '25px'}} className={(index === selectedButtonIndex) ? 'selectedButton' : ''} onClick={() => setTimeInterval(interval.interval, interval.intervalUnit, index)}>{interval.interval} {capitalizeFirstLetter(interval.intervalUnit)}{(interval.interval > 1) ? "s" : null}</Button>           
+                    </div>            
+                </div>
+            })          
+          }        
+          <div>
+            <Button style={{height: '25px'}} onClick={() => incrementDecrementIntervalRangeByInterval(true)}>{">"}</Button>           
+          </div>
+        </div>
+              
         </> 
         : 
         <div className='row center' data-testid="no-data">Please add intervals in the panel options</div>
