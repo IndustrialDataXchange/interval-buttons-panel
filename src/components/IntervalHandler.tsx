@@ -25,16 +25,37 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   const { selectedTimeRange, selectedButtonIndex, multiplier, autoRefreshActive, autoRefreshInterval } = stateData;
   const { interval, intervalUnit } = selectedTimeRange;  
 
-  useEffect(() => {           
-    setTimeInterval(stateData.selectedTimeRange.interval, stateData.selectedTimeRange.intervalUnit, stateData.selectedButtonIndex);    
+  useEffect(() => {        
+    const currentTimeDiff = data.timeRange.to.diff(data.timeRange.from, 'second');             
 
+    if(currentTimeDiff % 60 !== 0) {
+      window.clearInterval(autoRefreshInterval);
+
+      const minuteTimeDiff = data.timeRange.to.diff(data.timeRange.from, 'minute');            
+
+      setStateData(prev => ({
+        ...prev,
+        selectedTimeRange: {
+          interval: minuteTimeDiff,
+          intervalUnit: 'minute'
+        },
+        autoRefreshActive: false,
+        autoRefreshInterval: undefined,
+        selectedButtonIndex: -1
+      }))
+    }    
+
+  }, [data.timeRange, autoRefreshInterval])
+
+  useEffect(() => {                        
+    setTimeInterval(interval, intervalUnit, selectedButtonIndex);    
+      
     //This is a hack to clear all intervals when the component is mounted, we need to find a better way to store the interval ids and clear them properly
     for (let i = 1; i < 1000; i++) {
       window.clearInterval(i);
     }
-      
-
-    if(autoRefreshActive){
+    
+    if(autoRefreshActive) {
       const interval = setInterval(() => {
         doAutoRefresh()
       }, options.autoRefreshTime * 1000)      
@@ -46,16 +67,15 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       }))      
     }
 
-    return () => {
-      clearInterval(autoRefreshInterval);
-    }
+  return () => {
+    clearInterval(autoRefreshInterval);
+  }
   }, [interval, multiplier]);// eslint-disable-line react-hooks/exhaustive-deps
 
   const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {                
     let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);
-
     let to = dateTime(data.timeRange.to)     
-    let from = dateTime(data.timeRange.to).subtract(multipliedInterval, 'hours');        
+    let from = dateTime(data.timeRange.to).subtract(multipliedInterval, 'minutes');        
     
     changeDate(from, to);
 
@@ -76,10 +96,10 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     let from: DateTime = value;
 
     if(isFrom){
-      to = dateTime(value).add(multipliedInterval, 'hours');
+      to = dateTime(value).add(multipliedInterval, 'minutes');
     }
     else{
-      from = dateTime(from).subtract(multipliedInterval, 'hours');
+      from = dateTime(from).subtract(multipliedInterval, 'minutes');
     }    
     
     let tra: AbsoluteTimeRange = {
@@ -98,15 +118,15 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     let multipliedInterval = getMultipliedInterval(interval, intervalUnit, multiplier, data.timeRange.from);
    
     let from = dateTime(data.timeRange.from);    
-    let to = dateTime(data.timeRange.from).add(multipliedInterval, 'hours');
+    let to = dateTime(data.timeRange.from).add(multipliedInterval, 'minutes');
 
     if(increment) {
-      from = from.add(multipliedInterval, 'hours');
-      to = to.add(multipliedInterval, 'hours');
+      from = from.add(multipliedInterval, 'minutes');
+      to = to.add(multipliedInterval, 'minutes');
     }
     else {
-      from = from.add(-multipliedInterval, 'hours');
-      to = to.add(-multipliedInterval, 'hours');
+      from = from.add(-multipliedInterval, 'minutes');
+      to = to.add(-multipliedInterval, 'minutes');
     }
 
     changeDate(from, to);
@@ -121,7 +141,8 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   const setMultiplier = (value: number) => {
     let to = dateTime(data.timeRange.to)  
     let multipliedInterval = getMultipliedInterval(interval, intervalUnit, value, data.timeRange.to);          
-    let from = dateTime(to).subtract(multipliedInterval, 'hours');
+    
+    let from = dateTime(to).subtract(multipliedInterval, 'minutes');
 
     changeDate(from, to)
 
@@ -145,15 +166,19 @@ export const IntervalHandler: React.FC<Props> = (props) => {
    
     let durationUnit = ((multipliedInterval > 1) ? unit + "s" : unit) as DurationUnit 
 
+    if(durationUnit === 'hours' || durationUnit === 'hour'){
+      multipliedInterval = multipliedInterval * 60;
+    }
+
     if(durationUnit === 'days' || durationUnit === 'day'){
-      multipliedInterval = multipliedInterval * 24;      
+      multipliedInterval = multipliedInterval * 24 * 60;      
     }
 
     if(durationUnit === 'month' || durationUnit === 'months'){
       multipliedInterval = multipliedInterval * 24;
       let currentFrom = from.toDate();
       let numDaysInMonth = new Date(currentFrom.getFullYear(), currentFrom.getMonth() + 1, 0).getDate()
-      multipliedInterval = multipliedInterval * numDaysInMonth;      
+      multipliedInterval = multipliedInterval * numDaysInMonth * 60;      
     }
 
     return multipliedInterval;
@@ -216,6 +241,8 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       autoRefreshInterval: undefined
     })
   }
+
+  
 
   return (    
     <div style={{width:width, height: height}}>
