@@ -1,4 +1,4 @@
-export type IntervalUnit = 'minute' | 'hour' | 'day' | 'month';
+export type IntervalUnit = 'second' | 'minute' | 'hour' | 'day' | 'month' | 'year';
 
 export interface CustomInterval {
   interval: number;

@@ -23,6 +23,10 @@ const defaultIntervals: CustomInterval[] = [
   {
     interval: 1,
     intervalUnit: 'month'
+  },
+  {
+    interval: 1,
+    intervalUnit: 'year'
   }
 ]    
 

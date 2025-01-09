@@ -10,16 +10,19 @@ interface Props extends PanelProps<IntervalOptions> {}
 
 export const IntervalHandler: React.FC<Props> = (props) => {   
   const { options, data, width, height, onChangeTimeRange } = props
+
   const [stateData, setStateData] = useState<StateData>({
     selectedTimeRange: {
       interval: 1,
       intervalUnit: 'hour'
     },
+
     selectedButtonIndex: 0,
     multiplier: 1,
     autoRefreshActive: true,
     autoRefreshInterval: undefined
   })
+
   const [refreshIntervals, setRefreshIntervals] = useState<NodeJS.Timeout[]>([]);
 
   const { selectedTimeRange, selectedButtonIndex, multiplier, autoRefreshActive, autoRefreshInterval } = stateData;
@@ -30,6 +33,11 @@ export const IntervalHandler: React.FC<Props> = (props) => {
 
     if(currentTimeDiff % 60 !== 0) {
       window.clearInterval(autoRefreshInterval);
+
+      //This is a hack to clear all intervals when the component is mounted, we need to find a better way to store the interval ids and clear them properly
+      for (let i = 1; i < 1000; i++) {
+        window.clearInterval(i);
+      }
 
       const minuteTimeDiff = data.timeRange.to.diff(data.timeRange.from, 'minute');            
 
@@ -45,37 +53,43 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       }))
     }    
 
-  }, [data.timeRange, autoRefreshInterval])
+  }, [data.timeRange, interval, autoRefreshInterval])
 
-  useEffect(() => {                        
+  useEffect(() => {      
     setTimeInterval(interval, intervalUnit, selectedButtonIndex);    
-      
+
     //This is a hack to clear all intervals when the component is mounted, we need to find a better way to store the interval ids and clear them properly
     for (let i = 1; i < 1000; i++) {
       window.clearInterval(i);
-    }
+    }    
     
     if(autoRefreshActive) {
-      const interval = setInterval(() => {
+      const autoRefreshInterval = setInterval(() => {
         doAutoRefresh()
-      }, options.autoRefreshTime * 1000)      
+      }, options.autoRefreshTime * 1000)
 
-      setRefreshIntervals([...refreshIntervals, interval]);
+      setRefreshIntervals([...refreshIntervals, autoRefreshInterval]);
       setStateData(prev => ({
         ...prev,
-        autoRefreshInterval: interval
-      }))      
+        autoRefreshInterval: autoRefreshInterval
+      })) 
     }
 
-  return () => {
-    clearInterval(autoRefreshInterval);
-  }
+    return () => {
+      clearInterval(autoRefreshInterval);
+    }
   }, [interval, multiplier]);// eslint-disable-line react-hooks/exhaustive-deps
 
-  const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => {                
-    let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);
+  const setTimeInterval = (interval: number, durationUnit: DurationUnit, buttonIndex: number) => { 
+    let multipliedInterval = getMultipliedInterval(interval, durationUnit, multiplier, data.timeRange.from);    
+
     let to = dateTime(data.timeRange.to)     
-    let from = dateTime(data.timeRange.to).subtract(multipliedInterval, 'minutes');        
+    let from = dateTime(data.timeRange.to).subtract(multipliedInterval, 'minutes');    
+
+    if(interval === 0){
+      let timeDifferenceSeconds = data.timeRange.to.diff(data.timeRange.from, 'seconds');             
+      interval = timeDifferenceSeconds / 60;      
+    }    
     
     changeDate(from, to);
 
@@ -89,17 +103,28 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     })
   }  
 
-  const setTime = (value: DateTime, isFrom: boolean) => {
-    
+  const setTime = (value: DateTime, isFrom: boolean, resetInterval = false) => {    
     let multipliedInterval = getMultipliedInterval(interval, intervalUnit, multiplier, value);
+
     let to: DateTime = value;
     let from: DateTime = value;
 
     if(isFrom){
-      to = dateTime(value).add(multipliedInterval, 'minutes');
+      if(resetInterval){
+        to = data.timeRange.to;
+      }
+      else{
+        to = dateTime(value).add(multipliedInterval, 'minutes');
+      }
+        
     }
     else{
-      from = dateTime(from).subtract(multipliedInterval, 'minutes');
+      if(resetInterval){
+        from = data.timeRange.from;
+      }
+      else{
+        from = dateTime(from).subtract(multipliedInterval, 'minutes');
+      }
     }    
     
     let tra: AbsoluteTimeRange = {
@@ -108,14 +133,39 @@ export const IntervalHandler: React.FC<Props> = (props) => {
     }
     
     onChangeTimeRange(tra);   
-  }
+
+    if(resetInterval){      
+      let newInterval = 0;
+
+      if(isFrom){
+        newInterval = data.timeRange.to.diff(from, 'minutes');      
+      }
+      else{
+        newInterval = to.diff(data.timeRange.from, 'minutes');      
+      }
+
+      clearInterval(stateData.autoRefreshInterval);
+      
+      setStateData({
+        ...stateData,
+        autoRefreshActive: false,
+        autoRefreshInterval: undefined,
+        selectedTimeRange: {
+          interval: newInterval,
+          intervalUnit: 'minute'
+        }
+      })
+    }
+  }  
 
   const incrementDecrementIntervalRangeByInterval = (increment: boolean) => {    
-    if(interval === 0) {
+    let currentInterval = interval;
+
+    if(currentInterval === 0) {
       return;
     }    
 
-    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, multiplier, data.timeRange.from);
+    let multipliedInterval = getMultipliedInterval(currentInterval, intervalUnit, multiplier, data.timeRange.from);   
    
     let from = dateTime(data.timeRange.from);    
     let to = dateTime(data.timeRange.from).add(multipliedInterval, 'minutes');
@@ -140,7 +190,7 @@ export const IntervalHandler: React.FC<Props> = (props) => {
 
   const setMultiplier = (value: number) => {
     let to = dateTime(data.timeRange.to)  
-    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, value, data.timeRange.to);          
+    let multipliedInterval = getMultipliedInterval(interval, intervalUnit, value, data.timeRange.to);         
     
     let from = dateTime(to).subtract(multipliedInterval, 'minutes');
 
@@ -181,10 +231,14 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       multipliedInterval = multipliedInterval * numDaysInMonth * 60;      
     }
 
+    if(durationUnit === 'year' || durationUnit === 'years'){
+      multipliedInterval = multipliedInterval * 365 * 24 * 60;
+    }
+
     return multipliedInterval;
   }
 
-  const handleNowClick = () => {
+  const handleNowClick = () => {    
     if(!autoRefreshActive){
       goToNow();
     }
@@ -228,8 +282,13 @@ export const IntervalHandler: React.FC<Props> = (props) => {
   }  
 
   const handleApplyTimeClick = (value: DateTime, isFrom: boolean) => {
-    setTime(value, isFrom);
-    disableAutoRefresh();
+    if(selectedButtonIndex === -1){
+      setTime(value, isFrom, true);      
+    }
+    else{
+      setTime(value, isFrom);
+      disableAutoRefresh();    
+    }    
   }
 
   const disableAutoRefresh = () => {
@@ -241,8 +300,6 @@ export const IntervalHandler: React.FC<Props> = (props) => {
       autoRefreshInterval: undefined
     })
   }
-
-  
 
   return (    
     <div style={{width:width, height: height}}>
@@ -288,6 +345,11 @@ export const IntervalHandler: React.FC<Props> = (props) => {
         <div style={{display: 'flex', flexDirection: 'row', gap: 10}} className='center'>
           <div>
             <Button style={{height: '25px'}} onClick={() => incrementDecrementIntervalRangeByInterval(false)}> {"<"} </Button>           
+          </div>
+          <div>
+            <div className='col-2 pb-10'>
+              <Button style={{height: '25px'}} className={(selectedButtonIndex === -1) ? 'selectedButton' : ''} onClick={() => setTimeInterval(0, 'minute', -1)}>Custom</Button>           
+            </div>            
           </div>
           { options.intervals.map((interval, index) => {
             return <div key={index}>

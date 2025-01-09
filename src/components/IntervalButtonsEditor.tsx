@@ -7,7 +7,7 @@ import './style.css';
 type Props = StandardEditorProps<CustomInterval[]>;
 
 export const IntervalButtonsEditor = ({value, onChange, context}: Props) => {
-    const customIntervalOptions: IntervalUnit[] = ['minute', 'hour', 'day', 'month'];
+    const customIntervalOptions: IntervalUnit[] = ['minute', 'hour', 'day', 'month', 'year'];
     const [customInterval, setCustomInterval] = useState<CustomInterval>({
         interval: 0,
         intervalUnit: "day"
