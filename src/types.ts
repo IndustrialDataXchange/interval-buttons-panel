@@ -17,5 +17,4 @@ export interface StateData {
   selectedButtonIndex: number,
   multiplier: number,
   autoRefreshActive: boolean,
-  autoRefreshInterval: NodeJS.Timeout | undefined
 }
